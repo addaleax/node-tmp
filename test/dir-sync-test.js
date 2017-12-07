@@ -1,7 +1,7 @@
 /* eslint-disable no-octal */
 // vim: expandtab:ts=2:sw=2
 
-var
+const
   assert = require('assert'),
   fs = require('fs'),
   path = require('path'),
@@ -95,7 +95,7 @@ describe('tmp', function () {
           else if (stderr) assert.fail(stderr);
           else {
             assertions.assertDoesNotExist(stdout);
-            var basepath = path.join(__dirname, 'outband', 'fixtures', 'symlinkme');
+            const basepath = path.join(__dirname, 'outband', 'fixtures', 'symlinkme');
             assertions.assertExists(basepath);
             assertions.assertExists(path.join(basepath, 'file.js'), true);
           }
