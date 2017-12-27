@@ -1,17 +1,18 @@
 /* eslint-disable no-octal */
 // vim: expandtab:ts=2:sw=2
 
-const
+var
   assert = require('assert'),
   fs = require('fs'),
   path = require('path'),
   existsSync = fs.existsSync || path.existsSync,
   assertions = require('./assertions'),
+  rimraf = require('rimraf'),
   tmp = require('../lib/tmp');
 
 
 module.exports = function inbandStandard(isFile, beforeHook) {
-  const testMode = isFile ? 0600 : 0700;
+  var testMode = isFile ? 0600 : 0700;
   describe('without any parameters', inbandStandardTests({ mode: testMode, prefix: 'tmp-' }, null, isFile, beforeHook));
   describe('with prefix', inbandStandardTests({ mode: testMode }, { prefix: 'something' }, isFile, beforeHook));
   describe('with postfix', inbandStandardTests({ mode: testMode }, { postfix: '.txt' }, isFile, beforeHook));
@@ -72,9 +73,18 @@ function inbandStandardTests(testOpts, opts, isFile, beforeHook) {
       }.bind(topic));
     }
 
-    it('should have a working removeCallback', function () {
-      this.topic.removeCallback();
-      assert.ok(!existsSync(this.topic.name));
+    it('should have a working removeCallback', function (done) {
+      const self = this;
+      this.topic.removeCallback(function (err) {
+        if (err) return done(err);
+        try {
+          assertions.assertDoesNotExist(self.topic.name);
+        } catch (err) {
+          rimraf.sync(self.topic.name);
+          return done(err);
+        }
+        done();
+      });
     }.bind(topic));
   };
 }
